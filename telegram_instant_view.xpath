@@ -1,0 +1,73 @@
+~version: "2.0"
+
+site_name: "ShooterSpace"
+channel: "@shooterspace"
+
+description: /html/head/meta[@name="description"]/text
+canonical: //link[@rel="canonical"]/@href
+
+@remove: $body//canvas
+
+#Blog post page
+?exists: //article[@id="postBlock"]
+
+body: //article[@id="postBlock"]
+
+title: $body//h1[@class="post__name"]
+published_date: $body//span[@id="articlePubDate"]
+author: $body//a[@class="author-link"]
+author_url: $body//a[@class="author-link"]/@href
+
+@set_attr(name, @id): $body//a[@id]
+
+@background_to_image: $body//i[@id="coverImage"]
+$main_image: $@      
+cover: $@ 
+
+@replace_tag(<figure>): $body//a[.//img]
+@replace_tag(<span>): $body//p[.//img]
+
+$gallery: $body//div[@class="btgrid"]
+@replace_tag(<slideshow>): $gallery
+
+#Add related articles
+$related:  //section[@class="post-related_wrap"]//div[@class="row"]
+@remove: $related//img
+<h4>: $related//h2
+<related>: $related
+@append_to($body)
+
+#Remove blocks
+@remove: $body//div[@class="post__meta"]
+@remove: $body//p[@class="meta-b"]
+@remove: $body//hr[@class="post__separator"]
+@remove: $body//div[@class="author-block clearfix"]
+@remove: $body//ul[@class="pagination __nav"]
+
+#Map point page
+?exists: //div[@class="detail"]
+
+body: //div[@class="detail"]
+
+title: $body//h1[@class="detail__title"]
+subtitle: $body//h3
+
+cover: $body//img[@class="detail__image"] 
+
+<h5>: $body//dt
+<ul>: $body//dl
+<li>: $body//dd
+
+#@replace_tag(<mark>): //div[@id="placeLinks"]/a
+
+@combine(" "): $body//div[@id="placeLinks"]/following-sibling::*[1]/self::div
+
+#Make photo slideshow
+$gallery: $body//section[@id="gallery"]
+@background_to_image: $gallery/a
+$main_image: $@ 
+@append_to($gallery): $main_image
+image_url: $main_image/@src
+@replace_tag(<slideshow>): $gallery
+
+@remove: $body//div[@class="detail__share"]
